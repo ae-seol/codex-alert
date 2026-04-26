@@ -8,9 +8,13 @@ Codex Alert relays Codex Desktop completion events from a Windows PC to Android 
 
 그래서 GPT 앱처럼 Codex 작업도 휴대폰으로 알림을 보내면 어떨까 생각했습니다.
 
+물론 이것도 vibecoding으로 작성했습니다.
+
 These days, people often say the human is the bottleneck. It would be better to do something else while Codex or GPT is working on an answer, but I usually end up just waiting and taking a break.
 
 So I wondered: what if Codex could send a phone notification, like the GPT app does, when a task is done?
+
+Of course, this was also written with vibecoding.
 
 The v1 flow is intentionally small:
 
