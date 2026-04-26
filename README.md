@@ -6,9 +6,11 @@ Codex Alert relays Codex Desktop completion events from a Windows PC to Android 
 
 요새 다들 사람이 병목이라고 합니다. Codex나 GPT가 답변을 낼 때까지 다른 일을 하면 좋겠지만, 저는 보통 기다리다가 그대로 쉬게 되더라구요.
 
-그래서 GPT 앱처럼 Codex 작업도 휴대폰으로 알림을 보내면 어떨까 생각했습니다. 폰을 보면서 쉬다가 알림이 뜨면, 이제 병목은 모델이 아니라 다시 제가 되는 느낌입니다.
+그래서 GPT 앱처럼 Codex 작업도 휴대폰으로 알림을 보내면 어떨까 생각했습니다.
 
-물론 이 작업도 vibe coding으로 만들었습니다.
+These days, people often say the human is the bottleneck. It would be better to do something else while Codex or GPT is working on an answer, but I usually end up just waiting and taking a break.
+
+So I wondered: what if Codex could send a phone notification, like the GPT app does, when a task is done?
 
 The v1 flow is intentionally small:
 
@@ -62,7 +64,46 @@ and put the detected AppID in `allowedAppIds` in your local `pc.config.json`.
 
 ## Quick Start
 
-Check local tooling:
+Use the packaged files from `dist/`. No local build is needed for normal use.
+
+1. Install the Android APK:
+
+   ```text
+   D:\Documents\codex-alert\dist\codex-alert-v1-debug.apk
+   ```
+
+2. Open the Android app and copy the FCM registration token shown in the app.
+
+3. Extract the Windows relay ZIP:
+
+   ```text
+   D:\Documents\codex-alert\dist\codex-alert-relay-single-exe-win-x64.zip
+   ```
+
+4. Run:
+
+   ```text
+   CodexAlertRelay.exe
+   ```
+
+5. In the setup window, enter:
+
+   - Firebase project ID
+   - Firebase service account JSON path
+   - Android FCM token
+   - PC name
+
+6. Click `Send test` to verify phone delivery, then click `Start relay`.
+
+Keep the Firebase service account JSON outside this repo, for example:
+
+```text
+%LOCALAPPDATA%\CodexAlert\service-account.json
+```
+
+## Development Setup
+
+Check local tooling before building from source:
 
 ```powershell
 .\scripts\check-env.ps1
