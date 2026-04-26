@@ -1,0 +1,61 @@
+# Local secrets
+config/pc.config.json
+android/app/google-services.json
+**/google-services.json
+*.keystore
+*.jks
+*.p12
+*.pfx
+*.pem
+*.key
+key.properties
+service-account*.json
+*service-account*.json
+firebase-adminsdk*.json
+*firebase-adminsdk*.json
+*-firebase-adminsdk-*.json
+*.env
+.env.*
+!.env.example
+
+# Android
+.gradle/
+build/
+android/.gradle/
+android/.kotlin/
+android/local.properties
+android/**/build/
+android/**/captures/
+*.apk
+*.aab
+*.ap_
+*.dex
+
+# Windows/.NET
+windows/**/bin/
+windows/**/obj/
+windows/**/AppPackages/
+windows/**/BundleArtifacts/
+windows/**/publish/
+bin/
+obj/
+.vs/
+TestResults/
+*.binlog
+*.nupkg
+
+# Logs and local runtime state
+logs/
+*.log
+*.jsonl
+.tools/
+.tmp/
+dist/
+history/
+
+# Editor/OS
+.idea/
+*.user
+*.suo
+Thumbs.db
+Desktop.ini

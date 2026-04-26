@@ -1,0 +1,58 @@
+{
+  "version": "2.0.0",
+  "tasks": [
+    {
+      "label": "Check environment",
+      "type": "shell",
+      "command": "powershell",
+      "args": [
+        "-NoProfile",
+        "-ExecutionPolicy",
+        "Bypass",
+        "-File",
+        "${workspaceFolder}\\scripts\\check-env.ps1"
+      ],
+      "problemMatcher": []
+    },
+    {
+      "label": "Detect Codex AppID",
+      "type": "shell",
+      "command": "powershell",
+      "args": [
+        "-NoProfile",
+        "-ExecutionPolicy",
+        "Bypass",
+        "-File",
+        "${workspaceFolder}\\scripts\\detect-codex-appid.ps1"
+      ],
+      "problemMatcher": []
+    },
+    {
+      "label": "Build Android debug APK",
+      "type": "shell",
+      "command": "${workspaceFolder}\\android\\gradlew.bat",
+      "args": [
+        "-p",
+        "${workspaceFolder}\\android",
+        ":app:assembleDebug"
+      ],
+      "options": {
+        "env": {
+          "ANDROID_HOME": "${workspaceFolder}\\.tools\\android-sdk",
+          "ANDROID_SDK_ROOT": "${workspaceFolder}\\.tools\\android-sdk"
+        }
+      },
+      "problemMatcher": []
+    },
+    {
+      "label": "Build Windows relay",
+      "type": "shell",
+      "command": "dotnet",
+      "args": [
+        "build",
+        "${workspaceFolder}\\windows\\CodexAlertRelay\\CodexAlertRelay.csproj"
+      ],
+      "problemMatcher": "$msCompile"
+    }
+  ]
+}

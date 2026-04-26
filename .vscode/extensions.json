@@ -1,0 +1,8 @@
+{
+  "recommendations": [
+    "ms-dotnettools.csharp",
+    "redhat.java",
+    "fwcd.kotlin",
+    "vscjava.vscode-gradle"
+  ]
+}
