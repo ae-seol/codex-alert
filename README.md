@@ -88,6 +88,8 @@ Use the release files from GitHub. No local build is needed for normal use.
 
 6. Save the config, open `Diagnostics`, click `Send FCM test` to verify phone delivery, then click `Start relay`.
 
+If `Send FCM test` fails, click `Diagnostics > Troubleshooting` and `Diagnostics > Open logs`. The most common fixes are choosing a Firebase Admin SDK service account key instead of `google-services.json`, matching the Firebase Project ID across APK/service account/config, and copying the current Android FCM token from the app.
+
 Local build outputs, when building from this workspace, are:
 
 ```text
@@ -120,6 +122,7 @@ Follow the guides:
 
 - [Firebase setup](docs/firebase-setup.md)
 - [Download google-services.json](docs/google-services-json.md)
+- [Troubleshooting](docs/troubleshooting.md)
 - [Setup GUI](docs/setup-gui.md)
 - [External network and Firebase checklist](docs/external-network-and-firebase.md)
 - [GitHub publish guide](docs/github-publish.md)

@@ -23,10 +23,12 @@ This is a self-contained single-file Windows relay. It does not require installi
 The relay GUI has three tabs:
 
 - `Setup`: enter Firebase project ID, service account JSON path, Android FCM token(s), and PC name, then click `Save config` and `Start relay`.
-- `Diagnostics`: validate setup, send FCM tests, list recent Codex completions, send the latest completion, and open logs/config.
+- `Diagnostics`: validate setup, send FCM tests, list recent Codex completions, send the latest completion, show troubleshooting help, and open logs/config.
 - `Advanced`: change Codex home or stop the relay.
 
 Important: the single EXE does not include secrets. Each trusted PC still needs a local Firebase Admin SDK service account JSON and one or more Android FCM tokens.
+
+If setup fails, start with the built-in `Diagnostics > Troubleshooting` help and the detailed [troubleshooting guide](troubleshooting.md).
 
 The screenshot-based distribution guide lives in Obsidian:
 
@@ -196,6 +198,18 @@ Do not:
 - Put it in the APK.
 - Upload it next to APK download links.
 - Send it to phones.
+
+## Common Setup Errors
+
+`no supported key formats were found` means the selected `Service account JSON` is not a valid Firebase Admin SDK private key JSON. Do not select `google-services.json` for this field. Download a fresh key from:
+
+```text
+Firebase Console > Project settings > Service accounts > Firebase Admin SDK > Generate new private key
+```
+
+`codex session watcher is disabled` means the only active relay source is off. In the relay GUI, open `Advanced`, check `Watch Codex Desktop completion events`, click `Save config`, then click `Start relay`.
+
+Current releases do not need a Codex AppID, app finder key, Windows notification permission, or `allowedAppIds`. The relay reads Codex session logs from `%USERPROFILE%\.codex\sessions` directly.
 
 ## Firebase Links
 

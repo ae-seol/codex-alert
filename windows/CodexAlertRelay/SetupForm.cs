@@ -233,6 +233,7 @@ public sealed class SetupForm : Form
         buttons.Controls.Add(Button("Send FCM test", async () => await Run("Send FCM test", _context.SendTestAsync)));
         buttons.Controls.Add(Button("List Codex completions", ListCodexCompletions));
         buttons.Controls.Add(Button("Send latest completion", async () => await Run("Send latest completion", _context.SendLatestCodexCompletionAsync)));
+        buttons.Controls.Add(Button("Troubleshooting", ShowTroubleshooting));
         buttons.Controls.Add(Button("Open logs", () => _context.OpenLogs()));
         buttons.Controls.Add(Button("Open config", () => _context.OpenConfig()));
         root.Controls.Add(buttons, 0, 0);
@@ -242,7 +243,7 @@ public sealed class SetupForm : Form
         _diagnostics.ReadOnly = true;
         _diagnostics.ScrollBars = ScrollBars.Vertical;
         _diagnostics.Font = new Font(FontFamily.GenericMonospace, 9);
-        _diagnostics.Text = "Click Validate setup or List Codex completions.";
+        _diagnostics.Text = "Click Validate setup, List Codex completions, or Troubleshooting.";
         root.Controls.Add(_diagnostics, 0, 1);
         return root;
     }
@@ -372,6 +373,42 @@ public sealed class SetupForm : Form
                        $"Message: {Fallback(body, "(empty)")}";
             }));
         });
+    }
+
+    private void ShowTroubleshooting()
+    {
+        _diagnostics.Text =
+            "Common fixes" + Environment.NewLine +
+            "============" + Environment.NewLine +
+            Environment.NewLine +
+            "Send FCM test failed" + Environment.NewLine +
+            "- Open Diagnostics > Validate setup first." + Environment.NewLine +
+            "- Firebase project ID must be the Firebase Project ID, not com.codexalert." + Environment.NewLine +
+            "- Service account JSON must be a Firebase Admin SDK private key JSON." + Environment.NewLine +
+            "- Android token(s) must be copied from the installed Android app." + Environment.NewLine +
+            "- The APK, service account JSON, and project ID must belong to the same Firebase project." + Environment.NewLine +
+            Environment.NewLine +
+            "no supported key formats were found" + Environment.NewLine +
+            "- You selected the wrong JSON file or a corrupted private key file." + Environment.NewLine +
+            "- Do not use google-services.json here. That file is only for the Android APK." + Environment.NewLine +
+            "- Use Firebase Console > Project settings > Service accounts > Generate new private key." + Environment.NewLine +
+            "- The JSON must contain private_key starting with -----BEGIN PRIVATE KEY-----." + Environment.NewLine +
+            Environment.NewLine +
+            "Codex session watcher is disabled" + Environment.NewLine +
+            "- Open Advanced." + Environment.NewLine +
+            "- Check Watch Codex Desktop completion events." + Environment.NewLine +
+            "- Click Save config, then Start relay." + Environment.NewLine +
+            "- In pc.config.json, relay.enableCodexSessionWatcher must be true." + Environment.NewLine +
+            Environment.NewLine +
+            "Codex app finder / AppID" + Environment.NewLine +
+            "- No Codex AppID key is needed in current releases." + Environment.NewLine +
+            "- The relay reads %USERPROFILE%\\.codex\\sessions directly." + Environment.NewLine +
+            "- It does not inspect Windows toast notifications or detect the Codex app package." + Environment.NewLine +
+            Environment.NewLine +
+            "More detail" + Environment.NewLine +
+            "- Open logs to see the exact FCM/OAuth error." + Environment.NewLine +
+            "- Open config to inspect the saved project ID, service account path, tokens, and watcher setting.";
+        SetStatus("Troubleshooting help shown.");
     }
 
     private async Task Run(string name, Func<CancellationToken, Task> action)

@@ -71,7 +71,10 @@ pwsh .\scripts\send-test.ps1 -ConfigPath .\config\pc.config.json
 
 The Windows relay sends data-only, high-priority FCM messages. The Android app receives them in `FirebaseMessagingService`, stores them in the local inbox, and posts the visible notification on channel `codex_alerts`. This avoids Android's fallback FCM notification channel and keeps the inbox path reliable while the app is in the background.
 
+If the test fails, see [troubleshooting.md](troubleshooting.md). In particular, `no supported key formats were found` means the selected service account JSON is not a Firebase Admin SDK private key JSON. Do not use `google-services.json` as the relay service account file.
+
 ## References
 
 - Firebase FCM HTTP v1: https://firebase.google.com/docs/cloud-messaging/auth-server
 - External network checklist: external-network-and-firebase.md
+- Troubleshooting: troubleshooting.md
