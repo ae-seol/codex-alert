@@ -1,7 +1,6 @@
 using System.Diagnostics;
 using System.Text;
 using System.Text.Json;
-using System.Text.RegularExpressions;
 
 namespace CodexAlertSetup;
 
@@ -15,7 +14,6 @@ public sealed class SetupMainForm : Form
     private readonly TextBox _serviceAccountDest = new();
     private readonly TextBox _pcId = new();
     private readonly TextBox _pcName = new();
-    private readonly TextBox _allowedAppIds = new();
     private readonly TextBox _targetTokens = new();
     private readonly TextBox _log = new();
 
@@ -138,18 +136,15 @@ public sealed class SetupMainForm : Form
 
     private Control PcGroup()
     {
-        var group = new GroupBox { Text = "Per-PC relay config", Dock = DockStyle.Top, Height = 260 };
-        var grid = Grid(7);
+        var group = new GroupBox { Text = "Per-PC relay config", Dock = DockStyle.Top, Height = 220 };
+        var grid = Grid(6);
         AddField(grid, 0, "Service key source", _serviceAccountSource, Button("Browse", BrowseServiceAccount));
         AddField(grid, 1, "Service key local path", _serviceAccountDest, Button("Copy key", CopyServiceAccount));
         AddField(grid, 2, "PC ID", _pcId, null);
         AddField(grid, 3, "PC name", _pcName, null);
-        _allowedAppIds.Multiline = true;
-        _allowedAppIds.Height = 44;
-        AddField(grid, 4, "Codex AppID(s)", _allowedAppIds, Button("Detect", async () => await DetectCodexAppIdAsync()));
         _targetTokens.Multiline = true;
         _targetTokens.Height = 58;
-        AddField(grid, 5, "Android token(s)", _targetTokens, null);
+        AddField(grid, 4, "Android token(s)", _targetTokens, null);
 
         var actions = new FlowLayoutPanel
         {
@@ -161,7 +156,7 @@ public sealed class SetupMainForm : Form
         actions.Controls.Add(Button("Check network/config", async () => await RunScriptAsync("check-fcm-network.ps1", "-ConfigPath", ConfigPath())));
         actions.Controls.Add(Button("Send FCM test", async () => await RunPwshScriptAsync("send-test.ps1", "-ConfigPath", ConfigPath(), "-Title", "Codex Alert GUI test", "-Body", "Push sent from Codex Alert Setup Builder.")));
         actions.Controls.Add(Button("Open config folder", OpenConfigFolder));
-        grid.Controls.Add(actions, 1, 6);
+        grid.Controls.Add(actions, 1, 5);
 
         group.Controls.Add(grid);
         return group;
@@ -430,26 +425,16 @@ public sealed class SetupMainForm : Form
                 .Where(line => !string.IsNullOrWhiteSpace(line))
                 .Distinct(StringComparer.Ordinal)
                 .ToList();
-            var appIds = _allowedAppIds.Lines
-                .Select(line => line.Trim())
-                .Where(line => !string.IsNullOrWhiteSpace(line))
-                .Distinct(StringComparer.OrdinalIgnoreCase)
-                .ToList();
 
             if (tokens.Count == 0)
             {
                 throw new InvalidOperationException("Paste at least one Android FCM token.");
-            }
-            if (appIds.Count == 0)
-            {
-                throw new InvalidOperationException("Detect or paste at least one Codex AppID.");
             }
 
             var config = new
             {
                 pcId = _pcId.Text.Trim(),
                 pcName = _pcName.Text.Trim(),
-                allowedAppIds = appIds,
                 firebase = new
                 {
                     projectId = _projectId.Text.Trim(),
@@ -460,7 +445,12 @@ public sealed class SetupMainForm : Form
                 relay = new
                 {
                     dedupeWindowSeconds = 30,
-                    sendRetries = 3
+                    sendRetries = 3,
+                    enableCodexSessionWatcher = true,
+                    codexHomePath = "",
+                    codexSessionScanIntervalSeconds = 2,
+                    codexSessionMaxFiles = 80,
+                    codexCompletionBodyMaxChars = 600
                 }
             };
 
@@ -472,32 +462,6 @@ public sealed class SetupMainForm : Form
         catch (Exception exception)
         {
             ShowError("Save PC config failed", exception);
-        }
-    }
-
-    private async Task DetectCodexAppIdAsync()
-    {
-        try
-        {
-            var script = ScriptPath("detect-codex-appid.ps1");
-            var shell = FindPowerShell();
-            var output = await RunProcessCaptureAsync(shell, ["-NoProfile", "-ExecutionPolicy", "Bypass", "-File", script], RepoRoot(), null);
-            AppendLog(output);
-
-            var match = Regex.Match(output, @"(?m)^\[\d+\]\s+(?<appId>\S+!App)\s*$");
-            if (!match.Success)
-            {
-                match = Regex.Match(output, @"(?<appId>[A-Za-z0-9_.-]+_[A-Za-z0-9]+!App)");
-            }
-            if (match.Success)
-            {
-                _allowedAppIds.Text = match.Groups["appId"].Value;
-                AppendLog("Detected Codex AppID: " + _allowedAppIds.Text);
-            }
-        }
-        catch (Exception exception)
-        {
-            ShowError("Detect Codex AppID failed", exception);
         }
     }
 
@@ -573,7 +537,6 @@ public sealed class SetupMainForm : Form
             var root = document.RootElement;
             _pcId.Text = ReadString(root, "pcId", _pcId.Text);
             _pcName.Text = ReadString(root, "pcName", _pcName.Text);
-            _allowedAppIds.Text = ReadStringArray(root, "allowedAppIds");
             if (root.TryGetProperty("firebase", out var firebase))
             {
                 _projectId.Text = ReadString(firebase, "projectId", _projectId.Text);

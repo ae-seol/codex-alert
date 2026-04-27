@@ -64,11 +64,6 @@ $tokenResponse = Invoke-RestMethod -Method Post -Uri $tokenUri -ContentType "app
     assertion = $assertion
 }
 
-$sourceAppId = ""
-if ($config.allowedAppIds -and $config.allowedAppIds.Count -gt 0) {
-    $sourceAppId = $config.allowedAppIds[0]
-}
-
 function Get-ConfiguredTargetTokens {
     $tokens = New-Object System.Collections.Generic.List[string]
     if ($config.firebase.targetTokens) {
@@ -101,8 +96,8 @@ foreach ($targetToken in $targetTokens) {
             version = "1"
             pcId = [string]$config.pcId
             pcName = [string]$config.pcName
-            sourceAppId = [string]$sourceAppId
-            sourceAppName = "Codex"
+            sourceAppId = "manual-test"
+            sourceAppName = "Codex Alert Relay"
             toastId = "manual-test-$([Guid]::NewGuid().ToString("N"))"
             title = $Title
             body = $Body

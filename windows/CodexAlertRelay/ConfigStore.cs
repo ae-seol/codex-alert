@@ -52,7 +52,6 @@ public sealed class ConfigStore
         {
             PcId = Environment.MachineName.ToLowerInvariant(),
             PcName = Environment.MachineName,
-            AllowedAppIds = [],
             Firebase = new FirebaseConfig
             {
                 ProjectId = "your-firebase-project-id",
@@ -67,7 +66,6 @@ public sealed class ConfigStore
             {
                 DedupeWindowSeconds = 30,
                 SendRetries = 3,
-                EnableWindowsToastRelay = false,
                 EnableCodexSessionWatcher = true,
                 CodexHomePath = "",
                 CodexSessionScanIntervalSeconds = 2,

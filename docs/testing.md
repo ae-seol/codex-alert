@@ -6,7 +6,6 @@ On this PC, the following checks should pass after the environment setup:
 
 ```powershell
 .\scripts\check-env.ps1
-.\scripts\detect-codex-appid.ps1
 .\android\gradlew.bat -p .\android :app:assembleDebug
 dotnet build .\windows\CodexAlertRelay\CodexAlertRelay.csproj
 dotnet build .\windows\CodexAlertSetup\CodexAlertSetup.csproj
@@ -102,7 +101,7 @@ The FCM payload is data-only/high-priority so the app service stores the inbox e
 
 ## Codex Internal Completion Test
 
-The default relay path watches Codex Desktop internal session logs instead of waiting for a Windows toast.
+The relay path watches Codex Desktop internal session logs directly.
 
 List recent Codex completion events:
 
@@ -137,22 +136,3 @@ To inspect the app inbox from USB debugging:
 $adb=".\.tools\android-sdk\platform-tools\adb.exe"
 & $adb shell run-as com.codexalert cat shared_prefs/codex_alert_store.xml | Select-String "codex-internal-task-complete|Codex:"
 ```
-
-## Optional Windows Toast Relay Test
-
-Run:
-
-```powershell
-.\windows\CodexAlertRelay\bin\Debug\net8.0-windows10.0.19041.0\CodexAlertRelay.exe
-```
-
-Then in the setup window:
-
-1. Set `relay.enableWindowsToastRelay` to `true` in config.
-2. Request notification access.
-3. Detect Codex AppID.
-4. Paste Firebase settings and Android token.
-5. Send test.
-6. Start relay.
-
-If Codex AppID detection fails on another PC, use `Observe sources`, trigger a Codex toast, then copy the AppID that appears.

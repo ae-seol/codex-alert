@@ -1,5 +1,3 @@
-using Windows.UI.Notifications;
-
 namespace CodexAlertRelay;
 
 public sealed class ToastPayload
@@ -19,37 +17,11 @@ public sealed class ToastPayload
         {
             PcId = config.PcId,
             PcName = config.PcName,
-            SourceAppId = config.AllowedAppIds.FirstOrDefault() ?? "",
-            SourceAppName = "Codex",
+            SourceAppId = "manual-test",
+            SourceAppName = "Codex Alert Relay",
             ToastId = "manual-test-" + Guid.NewGuid().ToString("N"),
             Title = "Codex Alert test",
             Body = "FCM test message from Windows relay.",
-            ReceivedAtUtc = DateTimeOffset.UtcNow
-        };
-    }
-
-    public static ToastPayload FromUserNotification(UserNotification notification, PcConfig config)
-    {
-        var appInfo = notification.AppInfo;
-        var appId = appInfo.AppUserModelId;
-        var displayName = appInfo.DisplayInfo.DisplayName;
-        var texts = ExtractText(notification).ToList();
-        var title = texts.ElementAtOrDefault(0) ?? displayName ?? "Codex";
-        var body = string.Join(Environment.NewLine, texts.Skip(1)).Trim();
-        if (string.IsNullOrWhiteSpace(body) && texts.Count == 1)
-        {
-            body = texts[0];
-        }
-
-        return new ToastPayload
-        {
-            PcId = config.PcId,
-            PcName = config.PcName,
-            SourceAppId = appId ?? "",
-            SourceAppName = displayName ?? "Codex",
-            ToastId = $"{appId}:{notification.Id}:{notification.CreationTime.UtcDateTime:O}",
-            Title = title,
-            Body = body,
             ReceivedAtUtc = DateTimeOffset.UtcNow
         };
     }
@@ -71,23 +43,6 @@ public sealed class ToastPayload
             Body = NormalizeMessage(task.LastAgentMessage, config.Relay.CodexCompletionBodyMaxChars),
             ReceivedAtUtc = task.TimestampUtc
         };
-    }
-
-    private static IEnumerable<string> ExtractText(UserNotification notification)
-    {
-        var binding = notification.Notification.Visual.GetBinding(KnownNotificationBindings.ToastGeneric);
-        if (binding is null)
-        {
-            yield break;
-        }
-
-        foreach (var text in binding.GetTextElements())
-        {
-            if (!string.IsNullOrWhiteSpace(text.Text))
-            {
-                yield return text.Text.Trim();
-            }
-        }
     }
 
     private static string NormalizeMessage(string value, int maxChars)

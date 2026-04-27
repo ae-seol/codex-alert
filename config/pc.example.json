@@ -1,9 +1,6 @@
 {
   "pcId": "desktop-main",
   "pcName": "Main Windows PC",
-  "allowedAppIds": [
-    "OpenAI.Codex_2p2nqsd0c76g0!App"
-  ],
   "firebase": {
     "projectId": "your-firebase-project-id",
     "serviceAccountPath": "C:\\Users\\YourName\\AppData\\Local\\CodexAlert\\service-account.json",
@@ -15,7 +12,6 @@
   "relay": {
     "dedupeWindowSeconds": 30,
     "sendRetries": 3,
-    "enableWindowsToastRelay": false,
     "enableCodexSessionWatcher": true,
     "codexHomePath": "",
     "codexSessionScanIntervalSeconds": 2,

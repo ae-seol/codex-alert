@@ -50,7 +50,6 @@ Edit:
 - `firebase.serviceAccountPath`
 - `firebase.targetToken` for a single Android device
 - `firebase.targetTokens` for one or more Android devices
-- `allowedAppIds`
 
 The Android app displays the FCM registration token on the first screen. Install the same APK on additional Android devices and copy each device's token into `firebase.targetTokens`.
 

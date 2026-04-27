@@ -27,7 +27,6 @@ Different on every PC:
 
 - `pcId`
 - `pcName`
-- `allowedAppIds`, because Codex AppID can differ by machine
 - Local service account file path, if you choose a different path
 
 ## GUI Path
@@ -38,7 +37,7 @@ The easiest setup path is:
 D:\Documents\codex-alert\dist\setup-gui-single-win-x64\CodexAlertSetup.exe
 ```
 
-Use the GUI to select `google-services.json`, build the APK, copy the service account key, detect Codex AppID, paste Android token(s), save `pc.config.json`, run the network check, and send a test push.
+Use the GUI to select `google-services.json`, build the APK, copy the service account key, paste Android token(s), save `pc.config.json`, run the network check, and send a test push.
 
 ## Security Boundary
 
@@ -82,44 +81,37 @@ If a PC is lost or no longer trusted, revoke that key in Google Cloud / Firebase
    Copy-Item "C:\path\to\service-account.json" "$env:LOCALAPPDATA\CodexAlert\service-account.json"
    ```
 
-5. Detect that PC's Codex AppID:
-
-   ```powershell
-   .\scripts\detect-codex-appid.ps1
-   ```
-
-6. Create the local config:
+5. Create the local config:
 
    ```powershell
    Copy-Item .\config\pc.example.json .\config\pc.config.json
    notepad .\config\pc.config.json
    ```
 
-7. Fill these fields:
+6. Fill these fields:
 
    ```text
    pcId
    pcName
-   allowedAppIds
    firebase.projectId
    firebase.serviceAccountPath
    firebase.targetToken
    firebase.targetTokens
    ```
 
-8. Validate the config:
+7. Validate the config:
 
    ```powershell
    .\scripts\check-fcm-network.ps1 -ConfigPath .\config\pc.config.json
    ```
 
-9. Send a push test:
+8. Send a push test:
 
    ```powershell
    pwsh .\scripts\send-test.ps1 -ConfigPath .\config\pc.config.json -Title "Codex test from PC B" -Body "Another PC is connected."
    ```
 
-10. Start the relay. If you copied the full repo, run:
+9. Start the relay. If you copied the full repo, run:
 
     ```powershell
     .\windows\CodexAlertRelay\bin\Debug\net8.0-windows10.0.19041.0\CodexAlertRelay.exe
@@ -137,7 +129,6 @@ If a PC is lost or no longer trusted, revoke that key in Google Cloud / Firebase
 {
   "pcId": "laptop-work",
   "pcName": "Work Laptop",
-  "allowedAppIds": ["DETECTED_CODEX_APP_ID_ON_THAT_PC"],
   "firebase": {
     "projectId": "codex-alert",
     "serviceAccountPath": "C:\\Users\\Admin\\AppData\\Local\\CodexAlert\\service-account.json",

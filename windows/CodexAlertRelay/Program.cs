@@ -1,7 +1,4 @@
 using System.Text;
-using Windows.Data.Xml.Dom;
-using Windows.UI.Notifications;
-using Windows.UI.Notifications.Management;
 
 namespace CodexAlertRelay;
 
@@ -38,23 +35,8 @@ internal static class Program
         {
             switch (args[0].ToLowerInvariant())
             {
-                case "--access-status":
-                    PrintAndLog(logger, "Notification access: " + UserNotificationListener.Current.GetAccessStatus());
-                    return;
-
-                case "--request-access":
-                    {
-                        var status = await UserNotificationListener.Current.RequestAccessAsync();
-                        PrintAndLog(logger, "Notification access: " + status);
-                        return;
-                    }
-
                 case "--run-headless":
                     await RunHeadlessRelayAsync(logger, args);
-                    return;
-
-                case "--emit-test-toast":
-                    EmitTestToast(logger, args);
                     return;
 
                 case "--list-codex-completions":
@@ -157,30 +139,6 @@ internal static class Program
         }
     }
 
-    private static void EmitTestToast(FileLogger logger, string[] args)
-    {
-        var appId = GetStringOption(args, "--app-id", "");
-        var title = GetStringOption(args, "--title", "Codex relay test");
-        var body = GetStringOption(args, "--body", "Windows toast emitted for Codex Alert relay testing.");
-        if (string.IsNullOrWhiteSpace(appId))
-        {
-            throw new ArgumentException("--app-id is required.");
-        }
-
-        var xml = ToastNotificationManager.GetTemplateContent(ToastTemplateType.ToastText02);
-        var textNodes = xml.GetElementsByTagName("text");
-        textNodes[0].AppendChild(xml.CreateTextNode(title));
-        textNodes[1].AppendChild(xml.CreateTextNode(body));
-
-        var toast = new ToastNotification(xml)
-        {
-            Tag = "codex-alert-relay-test",
-            Group = "codex-alert"
-        };
-        ToastNotificationManager.CreateToastNotifier(appId).Show(toast);
-        PrintAndLog(logger, $"Toast emitted. appId={appId}, title={title}");
-    }
-
     private static int GetIntOption(string[] args, string name, int fallback)
     {
         var value = GetStringOption(args, name, "");
@@ -203,10 +161,7 @@ internal static class Program
     {
         var builder = new StringBuilder();
         builder.AppendLine("CodexAlertRelay CLI");
-        builder.AppendLine("  --access-status");
-        builder.AppendLine("  --request-access");
         builder.AppendLine("  --run-headless --seconds 30");
-        builder.AppendLine("  --emit-test-toast --app-id <AUMID> --title <title> --body <body>");
         builder.AppendLine("  --list-codex-completions --since-minutes 1440 --cwd-contains <path text> --limit 10");
         builder.AppendLine("  --send-latest-codex-completion --since-minutes 1440 --cwd-contains <path text>");
         return builder.ToString();

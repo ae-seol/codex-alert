@@ -9,9 +9,7 @@ public sealed class SetupForm : Form
     private readonly TextBox _serviceAccountPath = new();
     private readonly TextBox _targetToken = new();
     private readonly CheckBox _enableInternalWatcher = new();
-    private readonly CheckBox _enableToastRelay = new();
     private readonly TextBox _codexHomePath = new();
-    private readonly TextBox _allowedAppIds = new();
     private readonly TextBox _diagnostics = new();
     private readonly TextBox _status = new();
 
@@ -51,9 +49,7 @@ public sealed class SetupForm : Form
         _serviceAccountPath.Text = config.Firebase.ServiceAccountPath;
         _targetToken.Text = string.Join(Environment.NewLine, config.Firebase.GetTargetTokens());
         _enableInternalWatcher.Checked = config.Relay.EnableCodexSessionWatcher;
-        _enableToastRelay.Checked = config.Relay.EnableWindowsToastRelay;
         _codexHomePath.Text = config.Relay.CodexHomePath;
-        _allowedAppIds.Text = string.Join(Environment.NewLine, config.AllowedAppIds);
         SetStatus("Config: " + _context.ConfigPath);
     }
 
@@ -176,7 +172,7 @@ public sealed class SetupForm : Form
             Text =
                 "1. Install the release APK on Android and copy the FCM token from the app.\r\n" +
                 "2. Run this Windows EXE and fill in only the fields below.\r\n" +
-                "3. Click Save config, Send FCM test, then Start relay.",
+                "3. Save config. Use Diagnostics for the FCM test, then start the relay.",
             ForeColor = Color.FromArgb(40, 44, 52),
             AutoSize = false
         }, 0, 0);
@@ -221,8 +217,6 @@ public sealed class SetupForm : Form
             BorderStyle = BorderStyle.FixedSingle
         };
         panel.Controls.Add(Button("Save config", Save));
-        panel.Controls.Add(Button("Check setup", async () => await RunText("Check setup", _context.CheckSetupAsync)));
-        panel.Controls.Add(Button("Send FCM test", async () => await Run("Send FCM test", _context.SendTestAsync)));
         panel.Controls.Add(Button("Start relay", async () => await Run("Start relay", _context.StartRelayAsync)));
         panel.Controls.Add(Button("Hide to tray", () => _context.HideSetupWindow()));
         return panel;
@@ -235,9 +229,10 @@ public sealed class SetupForm : Form
         root.RowStyles.Add(new RowStyle(SizeType.Percent, 100));
 
         var buttons = new FlowLayoutPanel { Dock = DockStyle.Top, Height = 62, WrapContents = true };
-        buttons.Controls.Add(Button("Check setup", async () => await RunText("Check setup", _context.CheckSetupAsync)));
+        buttons.Controls.Add(Button("Validate setup", async () => await RunText("Validate setup", _context.CheckSetupAsync)));
         buttons.Controls.Add(Button("Send FCM test", async () => await Run("Send FCM test", _context.SendTestAsync)));
         buttons.Controls.Add(Button("List Codex completions", ListCodexCompletions));
+        buttons.Controls.Add(Button("Send latest completion", async () => await Run("Send latest completion", _context.SendLatestCodexCompletionAsync)));
         buttons.Controls.Add(Button("Open logs", () => _context.OpenLogs()));
         buttons.Controls.Add(Button("Open config", () => _context.OpenConfig()));
         root.Controls.Add(buttons, 0, 0);
@@ -247,7 +242,7 @@ public sealed class SetupForm : Form
         _diagnostics.ReadOnly = true;
         _diagnostics.ScrollBars = ScrollBars.Vertical;
         _diagnostics.Font = new Font(FontFamily.GenericMonospace, 9);
-        _diagnostics.Text = "Click Check setup or List Codex completions.";
+        _diagnostics.Text = "Click Validate setup or List Codex completions.";
         root.Controls.Add(_diagnostics, 0, 1);
         return root;
     }
@@ -262,39 +257,29 @@ public sealed class SetupForm : Form
 
     private Control AdvancedRelayBox()
     {
-        var box = Group("Optional relay settings", 260);
-        var grid = FieldGrid(5);
+        var box = Group("Advanced relay settings", 170);
+        var grid = FieldGrid(3);
         _enableInternalWatcher.Text = "Watch Codex Desktop completion events";
         _enableInternalWatcher.AutoSize = true;
         grid.Controls.Add(_enableInternalWatcher, 1, 0);
 
         AddPathField(grid, 1, "Codex home path", _codexHomePath, BrowseCodexHome);
 
-        _enableToastRelay.Text = "Also relay Windows toast notifications";
-        _enableToastRelay.AutoSize = true;
-        grid.Controls.Add(_enableToastRelay, 1, 2);
-
-        _allowedAppIds.Multiline = true;
-        _allowedAppIds.Height = 76;
-        AddField(grid, 3, "Allowed AppIDs", _allowedAppIds);
         grid.Controls.Add(new Label
         {
-            Text = "Leave these as-is unless you are changing the Codex home folder or enabling the optional toast relay.",
+            Text = "Leave these as-is unless you store Codex sessions outside %USERPROFILE%\\.codex.",
             ForeColor = Color.DimGray,
             AutoSize = true,
             Padding = new Padding(0, 8, 0, 0)
-        }, 1, 4);
+        }, 1, 2);
         box.Controls.Add(grid);
         return box;
     }
 
     private Control AdvancedActions()
     {
-        var box = Group("Advanced actions", 170);
+        var box = Group("Relay control", 90);
         var panel = new FlowLayoutPanel { Dock = DockStyle.Fill, Padding = new Padding(12), WrapContents = true };
-        panel.Controls.Add(Button("Request notification access", async () => await Run("Request access", ct => _context.RequestNotificationAccessAsync())));
-        panel.Controls.Add(Button("Detect Codex AppID", DetectCodexAppId));
-        panel.Controls.Add(Button("Validate toast filter", async () => await RunText("Validate filter", _context.ValidateFilterAsync)));
         panel.Controls.Add(Button("Stop relay", () => _context.StopRelay()));
         box.Controls.Add(panel);
         return box;
@@ -315,13 +300,7 @@ public sealed class SetupForm : Form
         config.Firebase.TargetToken = tokens.FirstOrDefault() ?? "";
         config.Firebase.TargetTokens = tokens;
         config.Relay.EnableCodexSessionWatcher = _enableInternalWatcher.Checked;
-        config.Relay.EnableWindowsToastRelay = _enableToastRelay.Checked;
         config.Relay.CodexHomePath = _codexHomePath.Text.Trim();
-        config.AllowedAppIds = _allowedAppIds.Lines
-            .Select(line => line.Trim())
-            .Where(line => !string.IsNullOrWhiteSpace(line))
-            .Distinct(StringComparer.OrdinalIgnoreCase)
-            .ToList();
         _context.SaveConfig(config);
         SetStatus("Saved config: " + _context.ConfigPath);
     }
@@ -349,44 +328,6 @@ public sealed class SetupForm : Form
         {
             _codexHomePath.Text = dialog.SelectedPath;
         }
-    }
-
-    private async void DetectCodexAppId()
-    {
-        await Run("Detect Codex AppID", async ct =>
-        {
-            var candidates = await _context.DetectCodexAppIdsAsync(ct);
-            if (candidates.Count == 0)
-            {
-                MessageBox.Show("No Codex AppID candidates found.", "Detect Codex AppID", MessageBoxButtons.OK, MessageBoxIcon.Information);
-                return;
-            }
-
-            var best = candidates.FirstOrDefault(candidate => !string.IsNullOrWhiteSpace(candidate.AppId));
-            var text = string.Join(Environment.NewLine + Environment.NewLine, candidates.Select((candidate, index) =>
-                $"[{index + 1}] {candidate.AppId}" + Environment.NewLine +
-                $"Name: {candidate.Name}" + Environment.NewLine +
-                $"Source: {candidate.Source}" + Environment.NewLine +
-                $"Confidence: {candidate.Confidence}" +
-                (string.IsNullOrWhiteSpace(candidate.Path) ? "" : Environment.NewLine + $"Path: {candidate.Path}")));
-
-            if (best is null)
-            {
-                MessageBox.Show(text, "Detect Codex AppID", MessageBoxButtons.OK, MessageBoxIcon.Information);
-                return;
-            }
-
-            var apply = MessageBox.Show(
-                text + Environment.NewLine + Environment.NewLine + $"Use this AppID?{Environment.NewLine}{best.AppId}",
-                "Detect Codex AppID",
-                MessageBoxButtons.YesNo,
-                MessageBoxIcon.Information);
-            if (apply == DialogResult.Yes)
-            {
-                _allowedAppIds.Text = best.AppId;
-                Save();
-            }
-        });
     }
 
     private async void ListCodexCompletions()

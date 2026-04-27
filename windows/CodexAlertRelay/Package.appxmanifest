@@ -22,7 +22,7 @@
     <Application Id="App" Executable="CodexAlertRelay.exe" EntryPoint="Windows.FullTrustApplication">
       <uap:VisualElements
         DisplayName="Codex Alert Relay"
-        Description="Relay Codex Windows notifications to Android"
+        Description="Relay Codex completion events to Android"
         BackgroundColor="transparent"
         Square150x150Logo="Assets\Square150x150Logo.png"
         Square44x44Logo="Assets\Square44x44Logo.png" />
@@ -34,7 +34,6 @@
 
   <Capabilities>
     <Capability Name="internetClient" />
-    <uap:Capability Name="userNotificationListener" />
     <rescap:Capability Name="runFullTrust" />
   </Capabilities>
 </Package>

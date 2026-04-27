@@ -118,23 +118,8 @@ Fill these fields:
 firebase.projectId
 firebase.serviceAccountPath
 firebase.targetToken
-allowedAppIds
+firebase.targetTokens
 ```
-
-Detect the Codex AppID on the target PC:
-
-```powershell
-cd D:\Documents\codex-alert
-.\scripts\detect-codex-appid.ps1
-```
-
-On the current development PC, Codex was detected as:
-
-```text
-OpenAI.Codex_2p2nqsd0c76g0!App
-```
-
-Do not assume that value on another PC. Run the detection script there.
 
 ## End-to-End Free Test
 
@@ -162,7 +147,7 @@ Do not assume that value on another PC. Run the detection script there.
    ```
 
 7. Confirm the Android status bar notification and app inbox entry.
-8. Start the Windows relay and trigger a real Codex toast.
+8. Start the Windows relay and complete a Codex Desktop turn.
 
 ## Troubleshooting
 

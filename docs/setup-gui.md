@@ -22,9 +22,9 @@ This is a self-contained single-file Windows relay. It does not require installi
 
 The relay GUI has three tabs:
 
-- `Setup`: enter Firebase project ID, service account JSON path, Android FCM token(s), and PC name, then click `Save config`, `Send FCM test`, `Start relay`.
-- `Diagnostics`: run setup checks, send FCM tests, list recent Codex completions, and open logs/config.
-- `Advanced`: change Codex home, enable optional Windows toast relay, detect Codex AppID, or stop the relay.
+- `Setup`: enter Firebase project ID, service account JSON path, Android FCM token(s), and PC name, then click `Save config` and `Start relay`.
+- `Diagnostics`: validate setup, send FCM tests, list recent Codex completions, send the latest completion, and open logs/config.
+- `Advanced`: change Codex home or stop the relay.
 
 Important: the single EXE does not include secrets. Each trusted PC still needs a local Firebase Admin SDK service account JSON and one or more Android FCM tokens.
 
@@ -129,9 +129,7 @@ For every Windows PC that should forward Codex notifications:
    ```
 
 5. Paste one or more Android FCM tokens.
-6. For the default internal Codex completion watcher, leave Windows toast relay disabled. Codex AppID detection is not required.
-7. Optional: click `Detect` next to Codex AppID only if you enabled Windows toast relay.
-8. Click:
+6. Click:
 
    ```text
    Save PC config
@@ -139,7 +137,7 @@ For every Windows PC that should forward Codex notifications:
    Send FCM test
    ```
 
-9. Start the relay:
+7. Start the relay:
 
    ```powershell
    .\relay\CodexAlertRelay.exe

@@ -1,6 +1,6 @@
 # Codex Alert
 
-Codex Alert relays Codex Desktop completion events from a Windows PC to Android through Firebase Cloud Messaging (FCM). It can also relay Windows Codex toast notifications when the optional toast listener is enabled.
+Codex Alert relays Codex Desktop completion events from a Windows PC to Android through Firebase Cloud Messaging (FCM).
 
 ## Why This Exists
 
@@ -19,11 +19,11 @@ Of course, this was also written with vibecoding.
 The v1 flow is intentionally small:
 
 1. Install the Android app and copy its FCM registration token.
-2. Configure the Windows relay with Firebase project details, a service account JSON path, the phone token, and the Codex Windows AppID for optional toast relay.
+2. Configure the Windows relay with Firebase project details, a service account JSON path, the phone token, and a PC name.
 3. Run the Windows tray relay.
 4. When Codex Desktop writes an internal `task_complete` session event, the relay forwards it to the Android phone as a push notification and stores it in the app inbox.
 
-The default v1 source is the Codex Desktop session JSONL under `%USERPROFILE%\.codex\sessions`, so it does not depend on whether Windows decides to show a toast. Windows toast relay remains available as an optional fallback by setting `relay.enableWindowsToastRelay` to `true`.
+The v1 source is the Codex Desktop session JSONL under `%USERPROFILE%\.codex\sessions`, so it does not depend on Windows desktop notification capture.
 
 ## Easiest Distribution
 
@@ -53,25 +53,9 @@ The relay opens a setup GUI by default and can be configured with only the Fireb
 - `android/` - Native Kotlin Android app.
 - `windows/` - .NET Windows tray relay app.
 - `config/` - Example PC relay configuration.
-- `scripts/` - Environment checks, Codex AppID detection, and FCM test send helpers.
+- `scripts/` - Environment checks and FCM test send helpers.
 - `docs/` - Setup guides for Firebase, Android, and the Windows relay.
 - `.codex/subagents/` - Project-local Codex subagent role specs for download, defensive security testing, and security fixes.
-
-## Current Machine Notes
-
-This workspace was initialized on a Windows 10 PC where Codex is registered as:
-
-```text
-OpenAI.Codex_2p2nqsd0c76g0!App
-```
-
-Do not hardcode that value for other PCs. Run:
-
-```powershell
-.\scripts\detect-codex-appid.ps1
-```
-
-and put the detected AppID in `allowedAppIds` in your local `pc.config.json`.
 
 ## Quick Start
 
@@ -102,7 +86,7 @@ Use the release files from GitHub. No local build is needed for normal use.
    - Android FCM token
    - PC name
 
-6. Click `Send test` to verify phone delivery, then click `Start relay`.
+6. Save the config, open `Diagnostics`, click `Send FCM test` to verify phone delivery, then click `Start relay`.
 
 Local build outputs, when building from this workspace, are:
 
@@ -149,4 +133,3 @@ Follow the guides:
 
 - Keep `android/app/google-services.json` out of source control.
 - Keep the Firebase service account JSON outside this repo, for example under `%LOCALAPPDATA%\CodexAlert\service-account.json`.
-- v1 forwards only configured `allowedAppIds`; keep that list narrow.

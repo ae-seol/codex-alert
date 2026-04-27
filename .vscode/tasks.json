@@ -15,19 +15,6 @@
       "problemMatcher": []
     },
     {
-      "label": "Detect Codex AppID",
-      "type": "shell",
-      "command": "powershell",
-      "args": [
-        "-NoProfile",
-        "-ExecutionPolicy",
-        "Bypass",
-        "-File",
-        "${workspaceFolder}\\scripts\\detect-codex-appid.ps1"
-      ],
-      "problemMatcher": []
-    },
-    {
       "label": "Build Android debug APK",
       "type": "shell",
       "command": "${workspaceFolder}\\android\\gradlew.bat",
