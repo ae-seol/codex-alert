@@ -8,7 +8,7 @@ The Android app is a small native Kotlin app. It displays the phone's FCM regist
 - Android Studio or Android SDK command line tools
 - Android SDK platform for the configured `compileSdk`
 - A physical Android phone or emulator with Google Play services
-- `android/app/google-services.json` from Firebase
+- `android/app/google-services.json` from Firebase. See [google-services-json.md](google-services-json.md) for the exact Firebase Console location.
 
 Run:
 

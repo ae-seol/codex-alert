@@ -135,6 +135,7 @@ notepad .\config\pc.config.json
 Follow the guides:
 
 - [Firebase setup](docs/firebase-setup.md)
+- [Download google-services.json](docs/google-services-json.md)
 - [Setup GUI](docs/setup-gui.md)
 - [External network and Firebase checklist](docs/external-network-and-firebase.md)
 - [GitHub publish guide](docs/github-publish.md)

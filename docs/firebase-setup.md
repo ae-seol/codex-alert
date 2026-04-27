@@ -12,8 +12,9 @@ Codex Alert uses Firebase Cloud Messaging because the Windows PC can send outbou
    com.codexalert
    ```
 
-4. Download `google-services.json`.
-5. Put it at:
+4. Download `google-services.json` from `Project settings > General > Your apps > com.codexalert`.
+   For a more detailed click-by-click guide, see [google-services-json.md](google-services-json.md).
+5. Put the downloaded file at:
 
    ```text
    android/app/google-services.json

@@ -70,7 +70,19 @@ Do this once per Firebase project:
    com.codexalert
    ```
 
-4. Download `google-services.json`.
+4. Download `google-services.json` from `Project settings > General > Your apps > com.codexalert`.
+   If you are using the direct Firebase Console URL, open:
+
+   ```text
+   https://console.firebase.google.com/project/codex-alert/settings/general/android:com.codexalert
+   ```
+
+   A more detailed click-by-click guide is in:
+
+   ```text
+   docs/google-services-json.md
+   ```
+
 5. In the GUI, select that file and click:
 
    ```text
