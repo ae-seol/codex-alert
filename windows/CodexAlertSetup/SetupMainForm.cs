@@ -532,7 +532,7 @@ public sealed class SetupMainForm : Form
     private void OpenSetupDocs()
     {
         var path = Path.Combine(RepoRoot(), "docs", "connect-another-pc.md");
-        Process.Start(new ProcessStartInfo { FileName = path, UseShellExecute = true });
+        ShellLauncher.Open(path, exception => BeginInvoke(new Action(() => ShowError("Open setup docs failed", exception))));
     }
 
     private void OpenServiceAccountUrl()
@@ -543,13 +543,13 @@ public sealed class SetupMainForm : Form
 
     private static void OpenUrl(string url)
     {
-        Process.Start(new ProcessStartInfo { FileName = url, UseShellExecute = true });
+        ShellLauncher.Open(url);
     }
 
     private static void OpenFolder(string path)
     {
         Directory.CreateDirectory(path);
-        Process.Start(new ProcessStartInfo { FileName = path, UseShellExecute = true });
+        ShellLauncher.OpenPath(path);
     }
 
     private void TryLoadExistingConfig()

@@ -20,14 +20,10 @@ public sealed class FileLogger
         });
     }
 
-    public void OpenDirectory()
+    public void OpenDirectory(Action<Exception>? onError = null)
     {
         Directory.CreateDirectory(LogDirectory);
-        System.Diagnostics.Process.Start(new System.Diagnostics.ProcessStartInfo
-        {
-            FileName = LogDirectory,
-            UseShellExecute = true
-        });
+        ShellLauncher.OpenPath(LogDirectory, onError);
     }
 
     private void Write(string level, string message, object? data)

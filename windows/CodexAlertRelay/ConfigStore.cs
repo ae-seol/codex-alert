@@ -37,17 +37,13 @@ public sealed class ConfigStore
         File.WriteAllText(ConfigPath, JsonSerializer.Serialize(config, JsonOptions));
     }
 
-    public void OpenInEditor()
+    public void OpenInEditor(Action<Exception>? onError = null)
     {
         if (!File.Exists(ConfigPath))
         {
             Save(CreateDefault());
         }
-        System.Diagnostics.Process.Start(new System.Diagnostics.ProcessStartInfo
-        {
-            FileName = ConfigPath,
-            UseShellExecute = true
-        });
+        ShellLauncher.Open(ConfigPath, onError);
     }
 
     private static PcConfig CreateDefault()

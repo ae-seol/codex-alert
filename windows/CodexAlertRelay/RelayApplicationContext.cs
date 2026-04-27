@@ -137,9 +137,9 @@ public sealed class RelayApplicationContext : ApplicationContext
         return string.Join(Environment.NewLine, lines);
     }
 
-    public void OpenConfig() => _configStore.OpenInEditor();
+    public void OpenConfig() => _configStore.OpenInEditor(exception => PostToUi(() => ShowError("Open config failed", exception)));
 
-    public void OpenLogs() => _logger.OpenDirectory();
+    public void OpenLogs() => _logger.OpenDirectory(exception => PostToUi(() => ShowError("Open logs failed", exception)));
 
     public void OpenLocalDocs()
     {
@@ -153,20 +153,12 @@ public sealed class RelayApplicationContext : ApplicationContext
 
     public void OpenPath(string path)
     {
-        System.Diagnostics.Process.Start(new System.Diagnostics.ProcessStartInfo
-        {
-            FileName = Path.GetFullPath(path),
-            UseShellExecute = true
-        });
+        ShellLauncher.OpenPath(path, exception => PostToUi(() => ShowError("Open path failed", exception)));
     }
 
     public void OpenUrl(string url)
     {
-        System.Diagnostics.Process.Start(new System.Diagnostics.ProcessStartInfo
-        {
-            FileName = url,
-            UseShellExecute = true
-        });
+        ShellLauncher.Open(url, exception => PostToUi(() => ShowError("Open browser failed", exception)));
     }
 
     public void HideSetupWindow()
@@ -334,6 +326,17 @@ public sealed class RelayApplicationContext : ApplicationContext
         _logger.Error(title, exception);
         UpdateStatus(title);
         MessageBox.Show(exception.Message, title, MessageBoxButtons.OK, MessageBoxIcon.Error);
+    }
+
+    private void PostToUi(Action action)
+    {
+        if (_setupForm is { IsDisposed: false, IsHandleCreated: true } form)
+        {
+            form.BeginInvoke(action);
+            return;
+        }
+
+        action();
     }
 
     private void UpdateStatus(string status)
