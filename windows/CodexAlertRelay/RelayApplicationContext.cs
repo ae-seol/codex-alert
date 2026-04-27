@@ -203,15 +203,7 @@ public sealed class RelayApplicationContext : ApplicationContext
         menu.Items.Add("Hide to tray", null, (_, _) => HideSetupWindow());
         menu.Items.Add("Start relay", null, async (_, _) => await RunUiActionAsync("Start relay", StartRelayAsync));
         menu.Items.Add("Stop relay", null, (_, _) => StopRelay());
-        menu.Items.Add("Request notification access", null, async (_, _) => await RunUiActionAsync("Request access", async ct =>
-        {
-            await _relay.RequestAccessAsync();
-        }));
-        menu.Items.Add("Detect Codex AppID", null, async (_, _) => await RunDetectAndApplyAsync());
-        menu.Items.Add("Observe notification sources", null, async (_, _) => await RunObserveSourcesAsync());
-        menu.Items.Add("Validate filter", null, async (_, _) => await RunValidateFilterAsync());
         menu.Items.Add("Send test", null, async (_, _) => await RunUiActionAsync("Send test", SendTestAsync));
-        menu.Items.Add("Send latest Codex completion", null, async (_, _) => await RunUiActionAsync("Send latest Codex completion", SendLatestCodexCompletionAsync));
         menu.Items.Add("Open config", null, (_, _) => OpenConfig());
         menu.Items.Add("Open logs", null, (_, _) => OpenLogs());
         menu.Items.Add("Exit", null, (_, _) =>
@@ -236,77 +228,6 @@ public sealed class RelayApplicationContext : ApplicationContext
         }
         _setupForm.BringToFront();
         _setupForm.Activate();
-    }
-
-    private async Task RunDetectAndApplyAsync()
-    {
-        try
-        {
-            var candidates = await DetectCodexAppIdsAsync(CancellationToken.None);
-            var best = candidates.FirstOrDefault(candidate => !string.IsNullOrWhiteSpace(candidate.AppId));
-            var text = candidates.Count == 0
-                ? "No Codex AppID candidates found."
-                : string.Join(Environment.NewLine + Environment.NewLine, candidates.Select((candidate, index) =>
-                    $"[{index + 1}] {candidate.AppId}" + Environment.NewLine +
-                    $"Name: {candidate.Name}" + Environment.NewLine +
-                    $"Source: {candidate.Source}" + Environment.NewLine +
-                    $"Confidence: {candidate.Confidence}" +
-                    (string.IsNullOrWhiteSpace(candidate.Path) ? "" : Environment.NewLine + $"Path: {candidate.Path}")));
-
-            if (best is not null)
-            {
-                var apply = MessageBox.Show(
-                    text + Environment.NewLine + Environment.NewLine + $"Use this AppID in config?{Environment.NewLine}{best.AppId}",
-                    "Codex AppID detection",
-                    MessageBoxButtons.YesNo,
-                    MessageBoxIcon.Information);
-                if (apply == DialogResult.Yes)
-                {
-                    var config = LoadConfig();
-                    config.AllowedAppIds = [best.AppId];
-                    SaveConfig(config);
-                    _setupForm?.Reload();
-                    UpdateStatus("Codex AppID applied.");
-                }
-            }
-            else
-            {
-                MessageBox.Show(text, "Codex AppID detection", MessageBoxButtons.OK, MessageBoxIcon.Information);
-            }
-        }
-        catch (Exception exception)
-        {
-            ShowError("Detect Codex AppID failed", exception);
-        }
-    }
-
-    private async Task RunObserveSourcesAsync()
-    {
-        try
-        {
-            var sources = await ObserveSourcesAsync(CancellationToken.None);
-            var text = sources.Count == 0
-                ? "No visible toast notification sources found."
-                : string.Join(Environment.NewLine, sources.Select(source => $"{source.AppId} ({source.DisplayName})"));
-            MessageBox.Show(text, "Recent notification sources", MessageBoxButtons.OK, MessageBoxIcon.Information);
-        }
-        catch (Exception exception)
-        {
-            ShowError("Observe sources failed", exception);
-        }
-    }
-
-    private async Task RunValidateFilterAsync()
-    {
-        try
-        {
-            var result = await ValidateFilterAsync(CancellationToken.None);
-            MessageBox.Show(result, "Validate filter", MessageBoxButtons.OK, MessageBoxIcon.Information);
-        }
-        catch (Exception exception)
-        {
-            ShowError("Validate filter failed", exception);
-        }
     }
 
     private async Task RunUiActionAsync(string name, Func<CancellationToken, Task> action)

@@ -19,9 +19,9 @@ public sealed class SetupForm : Form
     {
         _context = context;
         Text = "Codex Alert Relay";
-        Width = 980;
-        Height = 760;
-        MinimumSize = new Size(860, 660);
+        Width = 920;
+        Height = 640;
+        MinimumSize = new Size(820, 560);
         StartPosition = FormStartPosition.CenterScreen;
         ShowInTaskbar = true;
         Icon = (Icon)_context.AppIcon.Clone();
@@ -119,7 +119,7 @@ public sealed class SetupForm : Form
         }, 0, 0);
         text.Controls.Add(new Label
         {
-            Text = "Send Codex Desktop completion alerts to Android through Firebase Cloud Messaging.",
+            Text = "Windows relay for the Codex Alert Android app.",
             AutoSize = true,
             ForeColor = Color.DimGray
         }, 0, 1);
@@ -131,7 +131,6 @@ public sealed class SetupForm : Form
     {
         var tabs = new TabControl { Dock = DockStyle.Fill };
         tabs.TabPages.Add(Page("Setup", BuildSetupTab()));
-        tabs.TabPages.Add(Page("Beginner Help", BuildHelpTab()));
         tabs.TabPages.Add(Page("Diagnostics", BuildDiagnosticsTab()));
         tabs.TabPages.Add(Page("Advanced", BuildAdvancedTab()));
         return tabs;
@@ -162,80 +161,50 @@ public sealed class SetupForm : Form
         body.Controls.Add(QuickStartBox());
         body.Controls.Add(FirebaseBox());
         body.Controls.Add(PcBox());
-        body.Controls.Add(RelayModeBox());
         root.Controls.Add(body, 0, 1);
         return root;
     }
 
     private Control QuickStartBox()
     {
-        var box = Group("Quick start", 150);
-        var layout = new TableLayoutPanel { Dock = DockStyle.Fill, ColumnCount = 2, RowCount = 1, Padding = new Padding(12) };
-        layout.ColumnStyles.Add(new ColumnStyle(SizeType.Percent, 64));
-        layout.ColumnStyles.Add(new ColumnStyle(SizeType.Percent, 36));
+        var box = Group("Release setup", 112);
+        var layout = new TableLayoutPanel { Dock = DockStyle.Fill, ColumnCount = 1, RowCount = 1, Padding = new Padding(12) };
 
         layout.Controls.Add(new Label
         {
             Dock = DockStyle.Fill,
             Text =
-                "1. Install the Android APK and copy the FCM token from the phone.\r\n" +
-                "2. Paste Firebase project ID, service account JSON, and Android token below.\r\n" +
-                "3. Use the top buttons: Save config, Check setup, Send FCM test, then Start relay.\r\n" +
-                "4. Codex Desktop completion events are watched internally; Windows notification access is not required.",
+                "1. Install the release APK on Android and copy the FCM token from the app.\r\n" +
+                "2. Run this Windows EXE and fill in only the fields below.\r\n" +
+                "3. Click Save config, Send FCM test, then Start relay.",
             ForeColor = Color.FromArgb(40, 44, 52),
             AutoSize = false
         }, 0, 0);
 
-        var buttons = new FlowLayoutPanel { Dock = DockStyle.Fill, FlowDirection = FlowDirection.TopDown, WrapContents = false };
-        buttons.Controls.Add(WideButton("Open Firebase Console", () => _context.OpenUrl("https://console.firebase.google.com/")));
-        buttons.Controls.Add(WideButton("Open Android APK folder", () => _context.OpenPath(Path.Combine(AppContext.BaseDirectory, ".."))));
-        buttons.Controls.Add(WideButton("Open config file", () => _context.OpenConfig()));
-        layout.Controls.Add(buttons, 1, 0);
         box.Controls.Add(layout);
         return box;
     }
 
     private Control FirebaseBox()
     {
-        var box = Group("Firebase and Android", 196);
+        var box = Group("Required values", 196);
         var grid = FieldGrid(3);
         AddField(grid, 0, "Firebase project ID", _projectId);
         AddPathField(grid, 1, "Service account JSON", _serviceAccountPath, BrowseServiceAccount);
         _targetToken.Multiline = true;
         _targetToken.Height = 66;
-        AddField(grid, 2, "Android FCM token(s)", _targetToken);
+        AddField(grid, 2, "Android app FCM token(s)", _targetToken);
         box.Controls.Add(grid);
         return box;
     }
 
     private Control PcBox()
     {
-        var box = Group("This PC", 112);
+        var box = Group("Windows PC identity", 112);
         var grid = FieldGrid(2);
         AddField(grid, 0, "PC ID", _pcId);
         AddField(grid, 1, "PC display name", _pcName);
         box.Controls.Add(grid);
-        return box;
-    }
-
-    private Control RelayModeBox()
-    {
-        var box = Group("Relay mode", 130);
-        var layout = new TableLayoutPanel { Dock = DockStyle.Fill, ColumnCount = 1, RowCount = 3, Padding = new Padding(12) };
-        _enableInternalWatcher.Text = "Watch Codex Desktop internal task_complete events (recommended)";
-        _enableInternalWatcher.AutoSize = true;
-        _enableToastRelay.Text = "Also relay optional Windows toast notifications";
-        _enableToastRelay.AutoSize = true;
-        layout.Controls.Add(_enableInternalWatcher, 0, 0);
-        layout.Controls.Add(_enableToastRelay, 0, 1);
-        layout.Controls.Add(new Label
-        {
-            Text = "Default mode reads %USERPROFILE%\\.codex\\sessions and works even when Windows does not show a Codex toast.",
-            ForeColor = Color.DimGray,
-            AutoSize = true,
-            Padding = new Padding(0, 6, 0, 0)
-        }, 0, 2);
-        box.Controls.Add(layout);
         return box;
     }
 
@@ -244,7 +213,7 @@ public sealed class SetupForm : Form
         var panel = new FlowLayoutPanel
         {
             Dock = DockStyle.Top,
-            Height = 82,
+            Height = 58,
             FlowDirection = FlowDirection.LeftToRight,
             WrapContents = true,
             Padding = new Padding(8),
@@ -255,76 +224,8 @@ public sealed class SetupForm : Form
         panel.Controls.Add(Button("Check setup", async () => await RunText("Check setup", _context.CheckSetupAsync)));
         panel.Controls.Add(Button("Send FCM test", async () => await Run("Send FCM test", _context.SendTestAsync)));
         panel.Controls.Add(Button("Start relay", async () => await Run("Start relay", _context.StartRelayAsync)));
-        panel.Controls.Add(Button("Send latest Codex completion", async () => await Run("Send latest Codex completion", _context.SendLatestCodexCompletionAsync)));
         panel.Controls.Add(Button("Hide to tray", () => _context.HideSetupWindow()));
         return panel;
-    }
-
-    private Control BuildHelpTab()
-    {
-        var root = ScrollPanel();
-        root.Controls.Add(HelpText());
-        root.Controls.Add(HelpActions());
-        return root;
-    }
-
-    private Control HelpText()
-    {
-        var box = Group("Beginner guide", 410);
-        var text = new TextBox
-        {
-            Dock = DockStyle.Fill,
-            Multiline = true,
-            ReadOnly = true,
-            ScrollBars = ScrollBars.Vertical,
-            BorderStyle = BorderStyle.None,
-            BackColor = Color.White,
-            Text =
-                "What you need once:\r\n" +
-                "- Firebase Spark project\r\n" +
-                "- Android app registered with package com.codexalert\r\n" +
-                "- google-services.json used when building the APK\r\n" +
-                "- Firebase Admin SDK service account JSON kept on trusted Windows PCs only\r\n\r\n" +
-                "What each Android phone needs:\r\n" +
-                "- Install the APK\r\n" +
-                "- Allow notifications\r\n" +
-                "- Copy the FCM token shown in the app\r\n\r\n" +
-                "What each Windows PC needs:\r\n" +
-                "- This relay EXE\r\n" +
-                "- service-account.json path\r\n" +
-                "- Firebase project ID\r\n" +
-                "- One or more Android FCM tokens\r\n\r\n" +
-                "Important security notes:\r\n" +
-                "- Do not put service account JSON in the APK.\r\n" +
-                "- Do not upload service account JSON to public cloud links.\r\n" +
-                "- If a PC is no longer trusted, revoke its service account key in Firebase/Google Cloud.\r\n\r\n" +
-                "Normal operation:\r\n" +
-                "- Click Start relay.\r\n" +
-                "- Complete a Codex Desktop turn.\r\n" +
-                "- Android receives a Codex notification and stores it in the inbox."
-        };
-        box.Controls.Add(text);
-        return box;
-    }
-
-    private Control HelpActions()
-    {
-        var box = Group("Useful links", 138);
-        var panel = new FlowLayoutPanel { Dock = DockStyle.Fill, Padding = new Padding(12), WrapContents = true };
-        panel.Controls.Add(Button("Firebase Console", () => _context.OpenUrl("https://console.firebase.google.com/")));
-        panel.Controls.Add(Button("Service account page", () =>
-        {
-            var project = _projectId.Text.Trim();
-            var url = string.IsNullOrWhiteSpace(project) || project.Contains("your-firebase", StringComparison.OrdinalIgnoreCase)
-                ? "https://console.firebase.google.com/project/_/settings/serviceaccounts/adminsdk"
-                : $"https://console.firebase.google.com/project/{Uri.EscapeDataString(project)}/settings/serviceaccounts/adminsdk";
-            _context.OpenUrl(url);
-        }));
-        panel.Controls.Add(Button("Firebase FCM docs", () => _context.OpenUrl("https://firebase.google.com/docs/cloud-messaging")));
-        panel.Controls.Add(Button("Firebase pricing", () => _context.OpenUrl("https://firebase.google.com/pricing")));
-        panel.Controls.Add(Button("Open local docs", () => _context.OpenLocalDocs()));
-        box.Controls.Add(panel);
-        return box;
     }
 
     private Control BuildDiagnosticsTab()
@@ -333,11 +234,10 @@ public sealed class SetupForm : Form
         root.RowStyles.Add(new RowStyle(SizeType.AutoSize));
         root.RowStyles.Add(new RowStyle(SizeType.Percent, 100));
 
-        var buttons = new FlowLayoutPanel { Dock = DockStyle.Top, Height = 96, WrapContents = true };
+        var buttons = new FlowLayoutPanel { Dock = DockStyle.Top, Height = 62, WrapContents = true };
         buttons.Controls.Add(Button("Check setup", async () => await RunText("Check setup", _context.CheckSetupAsync)));
         buttons.Controls.Add(Button("Send FCM test", async () => await Run("Send FCM test", _context.SendTestAsync)));
         buttons.Controls.Add(Button("List Codex completions", ListCodexCompletions));
-        buttons.Controls.Add(Button("Send latest Codex completion", async () => await Run("Send latest Codex completion", _context.SendLatestCodexCompletionAsync)));
         buttons.Controls.Add(Button("Open logs", () => _context.OpenLogs()));
         buttons.Controls.Add(Button("Open config", () => _context.OpenConfig()));
         root.Controls.Add(buttons, 0, 0);
@@ -362,19 +262,28 @@ public sealed class SetupForm : Form
 
     private Control AdvancedRelayBox()
     {
-        var box = Group("Optional Windows toast relay and Codex home", 226);
-        var grid = FieldGrid(3);
-        AddPathField(grid, 0, "Codex home path", _codexHomePath, BrowseCodexHome);
+        var box = Group("Optional relay settings", 260);
+        var grid = FieldGrid(5);
+        _enableInternalWatcher.Text = "Watch Codex Desktop completion events";
+        _enableInternalWatcher.AutoSize = true;
+        grid.Controls.Add(_enableInternalWatcher, 1, 0);
+
+        AddPathField(grid, 1, "Codex home path", _codexHomePath, BrowseCodexHome);
+
+        _enableToastRelay.Text = "Also relay Windows toast notifications";
+        _enableToastRelay.AutoSize = true;
+        grid.Controls.Add(_enableToastRelay, 1, 2);
+
         _allowedAppIds.Multiline = true;
         _allowedAppIds.Height = 76;
-        AddField(grid, 1, "Allowed AppIDs", _allowedAppIds);
+        AddField(grid, 3, "Allowed AppIDs", _allowedAppIds);
         grid.Controls.Add(new Label
         {
-            Text = "AppID is only needed when optional Windows toast relay is enabled. Internal watcher does not need it.",
+            Text = "Leave these as-is unless you are changing the Codex home folder or enabling the optional toast relay.",
             ForeColor = Color.DimGray,
             AutoSize = true,
             Padding = new Padding(0, 8, 0, 0)
-        }, 1, 2);
+        }, 1, 4);
         box.Controls.Add(grid);
         return box;
     }
@@ -385,7 +294,6 @@ public sealed class SetupForm : Form
         var panel = new FlowLayoutPanel { Dock = DockStyle.Fill, Padding = new Padding(12), WrapContents = true };
         panel.Controls.Add(Button("Request notification access", async () => await Run("Request access", ct => _context.RequestNotificationAccessAsync())));
         panel.Controls.Add(Button("Detect Codex AppID", DetectCodexAppId));
-        panel.Controls.Add(Button("Observe sources", ObserveSources));
         panel.Controls.Add(Button("Validate toast filter", async () => await RunText("Validate filter", _context.ValidateFilterAsync)));
         panel.Controls.Add(Button("Stop relay", () => _context.StopRelay()));
         box.Controls.Add(panel);
@@ -478,17 +386,6 @@ public sealed class SetupForm : Form
                 _allowedAppIds.Text = best.AppId;
                 Save();
             }
-        });
-    }
-
-    private async void ObserveSources()
-    {
-        await RunText("Observe sources", async ct =>
-        {
-            var sources = await _context.ObserveSourcesAsync(ct);
-            return sources.Count == 0
-                ? "No visible toast notification sources found."
-                : string.Join(Environment.NewLine, sources.Select(source => $"{source.AppId} ({source.DisplayName})"));
         });
     }
 
@@ -635,14 +532,6 @@ public sealed class SetupForm : Form
             Margin = new Padding(0, 0, 8, 8)
         };
         button.Click += (_, _) => action();
-        return button;
-    }
-
-    private static Button WideButton(string text, Action action)
-    {
-        var button = Button(text, action);
-        button.Width = 210;
-        button.AutoSize = false;
         return button;
     }
 
