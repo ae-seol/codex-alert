@@ -27,19 +27,26 @@ The default v1 source is the Codex Desktop session JSONL under `%USERPROFILE%\.c
 
 ## Easiest Distribution
 
-Android APK:
+Download the latest release:
 
 ```text
-D:\Documents\codex-alert\dist\codex-alert-v1-debug.apk
+https://github.com/ae-seol/codex-alert/releases/latest
 ```
 
-Windows relay single-EXE ZIP:
+Release assets:
 
 ```text
-D:\Documents\codex-alert\dist\codex-alert-relay-single-exe-win-x64.zip
+codex-alert-v1-debug.apk
+codex-alert-relay-single-exe-win-x64.exe
 ```
 
-Extract the ZIP and run `CodexAlertRelay.exe`. The relay opens a setup GUI by default and can be configured with only the Firebase project ID, service account JSON path, Android FCM token, and PC name. The EXE does not include secrets.
+Install the APK on Android, then run the Windows EXE:
+
+```text
+CodexAlertRelay.exe
+```
+
+The relay opens a setup GUI by default and can be configured with only the Firebase project ID, service account JSON path, Android FCM token, and PC name. The EXE does not include secrets.
 
 ## Repository Layout
 
@@ -68,27 +75,25 @@ and put the detected AppID in `allowedAppIds` in your local `pc.config.json`.
 
 ## Quick Start
 
-Use the packaged files from `dist/`. No local build is needed for normal use.
+Use the release files from GitHub. No local build is needed for normal use.
 
-1. Install the Android APK:
-
-   ```text
-   D:\Documents\codex-alert\dist\codex-alert-v1-debug.apk
-   ```
-
-2. Open the Android app and copy the FCM registration token shown in the app.
-
-3. Extract the Windows relay ZIP:
+1. Download the latest release:
 
    ```text
-   D:\Documents\codex-alert\dist\codex-alert-relay-single-exe-win-x64.zip
+   https://github.com/ae-seol/codex-alert/releases/latest
    ```
 
-4. Run:
+2. Install `codex-alert-v1-debug.apk` on Android.
+
+3. Open the Android app and copy the FCM registration token shown in the app.
+
+4. Run the Windows relay:
 
    ```text
-   CodexAlertRelay.exe
+   codex-alert-relay-single-exe-win-x64.exe
    ```
+
+   If Windows SmartScreen asks for confirmation, choose to run it only if you downloaded it from this repository's release page.
 
 5. In the setup window, enter:
 
@@ -98,6 +103,13 @@ Use the packaged files from `dist/`. No local build is needed for normal use.
    - PC name
 
 6. Click `Send test` to verify phone delivery, then click `Start relay`.
+
+Local build outputs, when building from this workspace, are:
+
+```text
+D:\Documents\codex-alert\dist\codex-alert-v1-debug.apk
+D:\Documents\codex-alert\dist\codex-alert-relay-single-exe-win-x64.exe
+```
 
 Keep the Firebase service account JSON outside this repo, for example:
 

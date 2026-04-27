@@ -198,9 +198,23 @@ If any secret was committed by mistake, remove it from Git history and rotate th
 
 ## Release Artifacts
 
-Keep release artifacts out of Git. Upload APK and Windows ZIP files to GitHub Releases instead of committing them:
+Keep release artifacts out of the source tree. Upload APK and Windows EXE files to GitHub Releases instead of committing them:
 
 ```text
 dist/codex-alert-v1-debug.apk
-dist/codex-alert-relay-single-exe-win-x64.zip
+dist/codex-alert-relay-single-exe-win-x64.exe
+```
+
+Recommended release tag:
+
+```text
+v1.0.0
+```
+
+Recommended release assets:
+
+```text
+codex-alert-v1-debug.apk
+codex-alert-relay-single-exe-win-x64.exe
+SHA256SUMS.txt
 ```
