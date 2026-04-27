@@ -276,45 +276,58 @@ public sealed class SetupMainForm : Form
         return button;
     }
 
-    private void BrowseRepoRoot()
+    private async void BrowseRepoRoot()
     {
-        using var dialog = new FolderBrowserDialog
+        try
         {
-            Description = "Select Codex Alert project root",
-            SelectedPath = Directory.Exists(_repoRoot.Text) ? _repoRoot.Text : Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments)
-        };
-        if (dialog.ShowDialog(this) == DialogResult.OK)
-        {
-            _repoRoot.Text = dialog.SelectedPath;
+            AppendLog("Opening project root folder picker...");
+            var path = await SafeFilePicker.PickFolderAsync("Select Codex Alert project root", _repoRoot.Text);
+            if (path is null) return;
+            _repoRoot.Text = path;
             TryLoadExistingConfig();
+        }
+        catch (Exception exception)
+        {
+            ShowError("Browse project root failed", exception);
         }
     }
 
-    private void BrowseGoogleServices()
+    private async void BrowseGoogleServices()
     {
-        var path = BrowseFile("Select google-services.json", "JSON files (*.json)|*.json|All files (*.*)|*.*");
-        if (path is null) return;
-        _googleServicesPath.Text = path;
-        ValidateGoogleServices();
-    }
-
-    private void BrowseServiceAccount()
-    {
-        var path = BrowseFile("Select Firebase service account JSON", "JSON files (*.json)|*.json|All files (*.*)|*.*");
-        if (path is null) return;
-        _serviceAccountSource.Text = path;
-        ValidateServiceAccount(path);
-    }
-
-    private static string? BrowseFile(string title, string filter)
-    {
-        using var dialog = new OpenFileDialog
+        try
         {
-            Title = title,
-            Filter = filter,
-            CheckFileExists = true
-        };
-        return dialog.ShowDialog() == DialogResult.OK ? dialog.FileName : null;
+            AppendLog("Opening google-services.json file picker...");
+            var path = await SafeFilePicker.PickFileAsync(
+                "Select google-services.json",
+                "JSON files (*.json)|*.json|All files (*.*)|*.*",
+                _googleServicesPath.Text);
+            if (path is null) return;
+            _googleServicesPath.Text = path;
+            ValidateGoogleServices();
+        }
+        catch (Exception exception)
+        {
+            ShowError("Browse google-services.json failed", exception);
+        }
+    }
+
+    private async void BrowseServiceAccount()
+    {
+        try
+        {
+            AppendLog("Opening service account JSON file picker...");
+            var path = await SafeFilePicker.PickFileAsync(
+                "Select Firebase service account JSON",
+                "JSON files (*.json)|*.json|All files (*.*)|*.*",
+                _serviceAccountSource.Text);
+            if (path is null) return;
+            _serviceAccountSource.Text = path;
+            ValidateServiceAccount(path);
+        }
+        catch (Exception exception)
+        {
+            ShowError("Browse service account JSON failed", exception);
+        }
     }
 
     private void ValidateGoogleServices()

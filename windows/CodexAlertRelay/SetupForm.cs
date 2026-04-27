@@ -305,28 +305,46 @@ public sealed class SetupForm : Form
         SetStatus("Saved config: " + _context.ConfigPath);
     }
 
-    private void BrowseServiceAccount()
+    private async void BrowseServiceAccount()
     {
-        using var dialog = new OpenFileDialog
+        try
         {
-            Filter = "JSON files (*.json)|*.json|All files (*.*)|*.*",
-            Title = "Select Firebase service account JSON"
-        };
-        if (dialog.ShowDialog(this) == DialogResult.OK)
+            SetStatus("Opening service account file picker...");
+            var path = await SafeFilePicker.PickFileAsync(
+                "Select Firebase service account JSON",
+                "JSON files (*.json)|*.json|All files (*.*)|*.*",
+                _serviceAccountPath.Text);
+            if (path is not null)
+            {
+                _serviceAccountPath.Text = path;
+            }
+            SetStatus("Config: " + _context.ConfigPath);
+        }
+        catch (Exception exception)
         {
-            _serviceAccountPath.Text = dialog.FileName;
+            SetStatus("Service account file picker failed: " + exception.Message);
+            MessageBox.Show(exception.Message, "Service account Browse failed", MessageBoxButtons.OK, MessageBoxIcon.Error);
         }
     }
 
-    private void BrowseCodexHome()
+    private async void BrowseCodexHome()
     {
-        using var dialog = new FolderBrowserDialog
+        try
         {
-            Description = "Select Codex home folder. Leave empty for %USERPROFILE%\\.codex."
-        };
-        if (dialog.ShowDialog(this) == DialogResult.OK)
+            SetStatus("Opening Codex home folder picker...");
+            var path = await SafeFilePicker.PickFolderAsync(
+                "Select Codex home folder. Leave empty for %USERPROFILE%\\.codex.",
+                _codexHomePath.Text);
+            if (path is not null)
+            {
+                _codexHomePath.Text = path;
+            }
+            SetStatus("Config: " + _context.ConfigPath);
+        }
+        catch (Exception exception)
         {
-            _codexHomePath.Text = dialog.SelectedPath;
+            SetStatus("Codex home folder picker failed: " + exception.Message);
+            MessageBox.Show(exception.Message, "Codex home Browse failed", MessageBoxButtons.OK, MessageBoxIcon.Error);
         }
     }
 
